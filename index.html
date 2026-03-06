@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thread Pool Management System Simulator</title>
+  <meta name="description"
+    content="Interactive visualization and simulation of Thread Pool Management System for concurrent server applications. Explore thread lifecycle, task queues, synchronization, and real-time performance metrics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="nav-logo">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#06b6d4" stroke-width="2" />
+          <circle cx="7" cy="10" r="2.5" fill="#06b6d4" />
+          <circle cx="14" cy="10" r="2.5" fill="#8b5cf6" />
+          <circle cx="21" cy="10" r="2.5" fill="#06b6d4" />
+          <rect x="6" y="16" width="16" height="3" rx="1.5" fill="#06b6d4" opacity="0.4" />
+          <rect x="6" y="16" width="7" height="3" rx="1.5" fill="#8b5cf6" />
+        </svg>
+      </div>
+      <span class="logo-text">ThreadPool<span class="logo-accent">OS</span></span>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#hero" class="nav-link active" onclick="scrollToSection('hero')">Home</a>
+      <a href="#concepts" class="nav-link" onclick="scrollToSection('concepts')">Concepts</a>
+      <a href="#simulator" class="nav-link" onclick="scrollToSection('simulator')">Simulator</a>
+      <a href="#dashboard" class="nav-link" onclick="scrollToSection('dashboard')">Dashboard</a>
+      <a href="#lifecycle" class="nav-link" onclick="scrollToSection('lifecycle')">Lifecycle</a>
+      <a href="#concurrency" class="nav-link" onclick="scrollToSection('concurrency')">Concurrency</a>
+      <a href="#comparison" class="nav-link" onclick="scrollToSection('comparison')">Performance</a>
+      <a href="#code" class="nav-link" onclick="scrollToSection('code')">Code</a>
+      <a href="#architecture" class="nav-link" onclick="scrollToSection('architecture')">Architecture</a>
+      <a href="#monitor" class="nav-link" onclick="scrollToSection('monitor')">Monitor</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section id="hero" class="hero-section">
+    <canvas id="particleCanvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Live Simulation Running</span>
+      </div>
+      <h1 class="hero-title">
+        Thread Pool<br />
+        <span class="gradient-text">Management System</span><br />
+        Simulator
+      </h1>
+      <p class="hero-subtitle">Efficient Concurrency for High Performance Server Applications</p>
+      <p class="hero-desc">Visualize, simulate, and understand how thread pools manage concurrent tasks in real
+        operating systems. Interactive animations, real-time metrics, and educational insights.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="scrollToSection('simulator'); startSimulation()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5,3 19,12 5,21" />
+          </svg>
+          Start Simulation
+        </button>
+        <button class="btn-secondary" onclick="scrollToSection('concepts')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" />
+          </svg>
+          Learn Thread Pools
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="heroThreadCount">0</div>
+          <div class="stat-label">Active Threads</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="heroTasksDone">0</div>
+          <div class="stat-label">Tasks Completed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="heroCpu">0%</div>
+          <div class="stat-label">CPU Efficiency</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="heroQueueLen">0</div>
+          <div class="stat-label">Queue Size</div>
+        </div>
+      </div>
+    </div>
+    <!-- Animated thread visualization on hero -->
+    <div class="hero-visual">
+      <div class="thread-flow-viz" id="heroViz"></div>
+    </div>
+  </section>
+
+  <!-- ========== CONCEPTS SECTION ========== -->
+  <section id="concepts" class="section concepts-section">
+    <div class="section-header">
+      <div class="section-tag">OS Fundamentals</div>
+      <h2 class="section-title">Core Concepts</h2>
+      <p class="section-desc">Understanding the building blocks of concurrent programming and thread pool management</p>
+    </div>
+    <div class="concepts-grid">
+      <div class="concept-card" onclick="toggleConcept(this)">
+        <div class="concept-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8M12 17v4" />
+          </svg>
+        </div>
+        <h3>Thread vs Process</h3>
+        <p class="concept-preview">Lightweight execution units sharing memory space</p>
+        <div class="concept-detail">
+          <div class="comparison-mini">
+            <div class="compare-item">
+              <strong class="c-blue">Thread</strong>
+              <ul>
+                <li>Shares process memory</li>
+                <li>Lightweight (~1MB stack)</li>
+                <li>Fast context switch</li>
+                <li>Lower creation overhead</li>
+              </ul>
+            </div>
+            <div class="compare-item">
+              <strong class="c-purple">Process</strong>
+              <ul>
+                <li>Isolated memory space</li>
+                <li>Heavyweight (~8MB)</li>
+                <li>Slower context switch</li>
+                <li>Higher creation overhead</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="concept-toggle">Click to expand ▼</div>
+      </div>
+
+      <div class="concept-card" onclick="toggleConcept(this)">
+        <div class="concept-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+          </svg>
+        </div>
+        <h3>Thread Pool Concept</h3>
+        <p class="concept-preview">Pre-allocated workers ready to execute incoming tasks</p>
+        <div class="concept-detail">
+          <p>A thread pool maintains a fixed number of worker threads that are created once and reused for multiple
+            tasks. Instead of creating/destroying threads per request, tasks are queued and handled by available
+            workers.</p>
+          <div class="mini-diagram">
+            <div class="mini-box c-blue">Task Queue</div>
+            <div class="mini-arrow">→</div>
+            <div class="mini-box c-purple">Pool Manager</div>
+            <div class="mini-arrow">→</div>
+            <div class="mini-box c-cyan">Workers</div>
+          </div>
+        </div>
+        <div class="concept-toggle">Click to expand ▼</div>
+      </div>
+
+      <div class="concept-card" onclick="toggleConcept(this)">
+        <div class="concept-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M9 11l3 3L22 4" />
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+          </svg>
+        </div>
+        <h3>Task Queue</h3>
+        <p class="concept-preview">FIFO queue holding pending tasks awaiting worker threads</p>
+        <div class="concept-detail">
+          <p>The task queue is a thread-safe data structure (usually bounded) that buffers incoming work items. Worker
+            threads dequeue tasks atomically. When full, new tasks may be rejected or blocked depending on the policy.
+          </p>
+          <div class="queue-viz-mini">
+            <div class="queue-item-mini waiting">T5</div>
+            <div class="queue-item-mini waiting">T4</div>
+            <div class="queue-item-mini waiting">T3</div>
+            <div class="queue-item-mini running">T2</div>
+            <div class="queue-item-mini done">T1 ✓</div>
+          </div>
+        </div>
+        <div class="concept-toggle">Click to expand ▼</div>
+      </div>
+
+      <div class="concept-card" onclick="toggleConcept(this)">
+        <div class="concept-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+          </svg>
+        </div>
+        <h3>Worker Threads</h3>
+        <p class="concept-preview">Persistent execution units that pull and process tasks</p>
+        <div class="concept-detail">
+          <p>Each worker thread runs an infinite loop: wait for task → acquire task from queue → execute task → release
+            → repeat. This avoids the overhead of thread creation/destruction for every request.</p>
+          <div class="worker-states">
+            <span class="ws idle">Idle</span>
+            <span class="ws-arr">→</span>
+            <span class="ws running">Running</span>
+            <span class="ws-arr">→</span>
+            <span class="ws done">Done</span>
+            <span class="ws-arr">→</span>
+            <span class="ws idle">Idle</span>
+          </div>
+        </div>
+        <div class="concept-toggle">Click to expand ▼</div>
+      </div>
+
+      <div class="concept-card" onclick="toggleConcept(this)">
+        <div class="concept-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+        </div>
+        <h3>Synchronization</h3>
+        <p class="concept-preview">Mutex locks and semaphores preventing race conditions</p>
+        <div class="concept-detail">
+          <p>When multiple threads access shared data, synchronization primitives (mutex, semaphore, condition variable)
+            ensure data integrity. Without synchronization, race conditions cause unpredictable behavior and data
+            corruption.</p>
+          <div class="sync-visual">
+            <div class="sync-thread">Thread A</div>
+            <div class="lock-icon">🔒</div>
+            <div class="sync-resource">Shared Data</div>
+            <div class="lock-icon">🔒</div>
+            <div class="sync-thread">Thread B</div>
+          </div>
+        </div>
+        <div class="concept-toggle">Click to expand ▼</div>
+      </div>
+
+      <div class="concept-card" onclick="toggleConcept(this)">
+        <div class="concept-icon" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+        </div>
+        <h3>Performance Optimization</h3>
+        <p class="concept-preview">Tuning pool size and queue bounds for maximum throughput</p>
+        <div class="concept-detail">
+          <p>Optimal thread pool size ≈ N_cpu × (1 + W/C), where W = wait time and C = compute time. Too few threads →
+            CPU underutilization. Too many → context switch overhead and memory pressure.</p>
+          <div class="formula-box">
+            <code>Optimal = CPU_Cores × (1 + Wait/Compute)</code>
+          </div>
+        </div>
+        <div class="concept-toggle">Click to expand ▼</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SIMULATOR SECTION ========== -->
+  <section id="simulator" class="section simulator-section">
+    <div class="section-header">
+      <div class="section-tag">Interactive Demo</div>
+      <h2 class="section-title">Thread Pool Simulator</h2>
+      <p class="section-desc">Control and visualize the thread pool in real-time</p>
+    </div>
+
+    <div class="sim-layout">
+      <!-- Controls Panel -->
+      <div class="sim-controls">
+        <div class="control-card">
+          <h3 class="control-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83" />
+            </svg>
+            Pool Configuration
+          </h3>
+          <div class="ctrl-group">
+            <label>Worker Threads <span class="ctrl-val" id="threadCountVal">4</span></label>
+            <input type="range" id="threadCount" min="1" max="12" value="4" class="slider"
+              oninput="updateSlider('threadCount','threadCountVal',this.value); updatePool()" />
+          </div>
+          <div class="ctrl-group">
+            <label>Queue Capacity <span class="ctrl-val" id="queueCapVal">10</span></label>
+            <input type="range" id="queueCap" min="5" max="50" value="10" class="slider"
+              oninput="updateSlider('queueCap','queueCapVal',this.value)" />
+          </div>
+          <div class="ctrl-group">
+            <label>Task Duration (ms) <span class="ctrl-val" id="taskDurVal">1500</span></label>
+            <input type="range" id="taskDur" min="500" max="5000" value="1500" step="100" class="slider"
+              oninput="updateSlider('taskDur','taskDurVal',this.value)" />
+          </div>
+          <div class="ctrl-group">
+            <label>Task Arrival Rate <span class="ctrl-val" id="arrivalRateVal">2/s</span></label>
+            <input type="range" id="arrivalRate" min="1" max="10" value="2" class="slider"
+              oninput="updateSlider('arrivalRate','arrivalRateVal',this.value+'\/s')" />
+          </div>
+          <div class="ctrl-toggle-group">
+            <label class="toggle-label">
+              <span>Synchronization Lock</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="syncLock" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+            <label class="toggle-label">
+              <span>Task Failure Simulation</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="failSim" />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+            <label class="toggle-label">
+              <span>Auto Task Generation</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="autoTask" checked onchange="toggleAutoTask()" />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-card">
+          <h3 class="control-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+              <polygon points="5,3 19,12 5,21" />
+            </svg>
+            Simulation Controls
+          </h3>
+          <div class="sim-btn-group">
+            <button class="sim-btn start" id="startBtn" onclick="startSimulation()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5,3 19,12 5,21" />
+              </svg>
+              Start
+            </button>
+            <button class="sim-btn pause" id="pauseBtn" onclick="pauseSimulation()" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16" />
+                <rect x="14" y="4" width="4" height="16" />
+              </svg>
+              Pause
+            </button>
+            <button class="sim-btn reset" id="resetBtn" onclick="resetSimulation()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 4v6h6" />
+                <path d="M23 20v-6h-6" />
+                <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
+              </svg>
+              Reset
+            </button>
+          </div>
+          <button class="add-task-btn" onclick="addManualTask()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Task Manually
+          </button>
+          <div class="task-type-select">
+            <label>Task Priority</label>
+            <select id="taskPriority" class="select-input">
+              <option value="high">High Priority</option>
+              <option value="normal" selected>Normal Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Metrics -->
+        <div class="control-card metrics-card">
+          <h3 class="control-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            Live Metrics
+          </h3>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <div class="metric-val" id="simThreadsBusy">0</div>
+              <div class="metric-lbl">Busy Threads</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-val" id="simThreadsIdle">4</div>
+              <div class="metric-lbl">Idle Threads</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-val" id="simQueueLen">0</div>
+              <div class="metric-lbl">Queue Length</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-val" id="simCompleted">0</div>
+              <div class="metric-lbl">Completed</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-val" id="simFailed">0</div>
+              <div class="metric-lbl">Failed</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-val" id="simThroughput">0</div>
+              <div class="metric-lbl">Tasks/sec</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Simulation Canvas -->
+      <div class="sim-main">
+        <div class="sim-arena" id="simArena">
+          <!-- Queue Section -->
+          <div class="sim-queue-section">
+            <div class="sim-section-label">
+              <span class="section-dot waiting-dot"></span>Task Queue
+            </div>
+            <div class="queue-container" id="queueContainer">
+              <div class="queue-empty-msg" id="queueEmptyMsg">Queue is empty — tasks will appear here</div>
+            </div>
+          </div>
+
+          <!-- Pool Section -->
+          <div class="sim-pool-section">
+            <div class="sim-section-label">
+              <span class="section-dot running-dot"></span>Worker Thread Pool
+            </div>
+            <div class="workers-container" id="workersContainer"></div>
+          </div>
+
+          <!-- Completed Section -->
+          <div class="sim-done-section">
+            <div class="sim-section-label">
+              <span class="section-dot done-dot"></span>Completed Tasks
+            </div>
+            <div class="completed-container" id="completedContainer">
+              <div class="queue-empty-msg">Completed tasks will appear here</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="activity-log">
+          <div class="log-header">
+            <span>Activity Log</span>
+            <button onclick="clearLog()" class="clear-log-btn">Clear</button>
+          </div>
+          <div class="log-body" id="activityLog">
+            <div class="log-entry info">System initialized. Configure settings and click Start.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DASHBOARD SECTION ========== -->
+  <section id="dashboard" class="section dashboard-section">
+    <div class="section-header">
+      <div class="section-tag">Analytics</div>
+      <h2 class="section-title">Real-Time Performance Dashboard</h2>
+      <p class="section-desc">Live metrics and graphs updating in real-time during simulation</p>
+    </div>
+    <div class="dashboard-grid">
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <span class="chart-title">Active Threads Over Time</span>
+          <span class="chart-badge live">LIVE</span>
+        </div>
+        <canvas id="threadsChart" height="120"></canvas>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <span class="chart-title">Task Completion Rate</span>
+          <span class="chart-badge live">LIVE</span>
+        </div>
+        <canvas id="completionChart" height="120"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">CPU Utilization</span>
+          <span class="chart-badge live">LIVE</span>
+        </div>
+        <canvas id="cpuChart" height="160"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Queue Length</span>
+          <span class="chart-badge live">LIVE</span>
+        </div>
+        <canvas id="queueChart" height="160"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Thread State Ratio</span>
+          <span class="chart-badge live">LIVE</span>
+        </div>
+        <canvas id="ratioChart" height="160"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Avg Execution Time (ms)</span>
+          <span class="chart-badge live">LIVE</span>
+        </div>
+        <canvas id="execTimeChart" height="160"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== LIFECYCLE SECTION ========== -->
+  <section id="lifecycle" class="section lifecycle-section">
+    <div class="section-header">
+      <div class="section-tag">Thread States</div>
+      <h2 class="section-title">Thread Lifecycle Visualization</h2>
+      <p class="section-desc">Follow a thread through its complete lifecycle from creation to reuse</p>
+    </div>
+    <div class="lifecycle-container">
+      <div class="lifecycle-flow">
+        <div class="lc-stage" id="lc0">
+          <div class="lc-icon created">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+          </div>
+          <div class="lc-label">Created</div>
+          <div class="lc-desc">Thread object instantiated, OS stack allocated</div>
+        </div>
+        <div class="lc-arrow" id="lca0">
+          <div class="lc-arrow-line"></div>
+        </div>
+        <div class="lc-stage" id="lc1">
+          <div class="lc-icon idle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4l3 3" />
+            </svg>
+          </div>
+          <div class="lc-label">Idle</div>
+          <div class="lc-desc">Waiting on condition variable for new tasks</div>
+        </div>
+        <div class="lc-arrow" id="lca1">
+          <div class="lc-arrow-line"></div>
+        </div>
+        <div class="lc-stage" id="lc2">
+          <div class="lc-icon assigned">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <div class="lc-label">Assigned</div>
+          <div class="lc-desc">Task dequeued and passed to this thread</div>
+        </div>
+        <div class="lc-arrow" id="lca2">
+          <div class="lc-arrow-line"></div>
+        </div>
+        <div class="lc-stage" id="lc3">
+          <div class="lc-icon executing">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <polygon points="5,3 19,12 5,21" />
+            </svg>
+          </div>
+          <div class="lc-label">Executing</div>
+          <div class="lc-desc">Running the task function with CPU cycles</div>
+        </div>
+        <div class="lc-arrow" id="lca3">
+          <div class="lc-arrow-line"></div>
+        </div>
+        <div class="lc-stage" id="lc4">
+          <div class="lc-icon completed">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <div class="lc-label">Completed</div>
+          <div class="lc-desc">Task result stored, resources freed</div>
+        </div>
+        <div class="lc-arrow" id="lca4">
+          <div class="lc-arrow-line reuse"></div>
+        </div>
+        <div class="lc-stage" id="lc5">
+          <div class="lc-icon reused">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M1 4v6h6" />
+              <path d="M23 20v-6h-6" />
+              <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
+            </svg>
+          </div>
+          <div class="lc-label">Reused</div>
+          <div class="lc-desc">Thread returns to pool, ready for next task</div>
+        </div>
+      </div>
+      <div class="lc-controls">
+        <button class="btn-primary" onclick="animateLifecycle()">Animate Lifecycle</button>
+        <button class="btn-secondary" onclick="resetLifecycle()">Reset</button>
+      </div>
+      <div class="lifecycle-thread-demo">
+        <div class="ltd-label">Current Thread Demo</div>
+        <div class="ltd-bar" id="lcBar">
+          <div class="ltd-fill" id="lcFill"></div>
+        </div>
+        <div class="ltd-status" id="lcStatus">Click "Animate Lifecycle" to begin</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONCURRENCY SECTION ========== -->
+  <section id="concurrency" class="section concurrency-section">
+    <div class="section-header">
+      <div class="section-tag">Race Conditions</div>
+      <h2 class="section-title">Concurrency Visualization</h2>
+      <p class="section-desc">See the difference between synchronized and unsynchronized thread access</p>
+    </div>
+    <div class="concurrency-layout">
+      <div class="sync-controls-panel">
+        <h3>Simulation Mode</h3>
+        <div class="sync-toggle-btns">
+          <button id="noSyncBtn" class="sync-mode-btn active" onclick="setConcurrencyMode('unsafe')">
+            <span class="danger-icon">⚠</span>
+            Without Synchronization
+          </button>
+          <button id="syncBtn" class="sync-mode-btn" onclick="setConcurrencyMode('safe')">
+            <span class="safe-icon">🔒</span>
+            With Mutex Lock
+          </button>
+        </div>
+        <div class="sync-explanation" id="syncExplan">
+          <div class="danger-box">
+            <strong>⚠ Race Condition Active!</strong>
+            <p>Multiple threads accessing shared counter without locking. This causes data corruption — final value will
+              be wrong!</p>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="runConcurrencyDemo()" style="width:100%;margin-top:16px">
+          Run Demonstration
+        </button>
+        <div class="counter-display">
+          <div class="counter-label">Shared Counter (Expected: 1000)</div>
+          <div class="counter-val" id="concurrencyCounter">0</div>
+          <div class="counter-status" id="counterStatus">Ready</div>
+        </div>
+      </div>
+
+      <div class="concurrency-visual" id="concurrencyViz">
+        <div class="cv-threads" id="cvThreads">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="cv-resource">
+          <div class="cv-resource-label">Shared Memory</div>
+          <div class="cv-resource-box" id="cvResource">
+            <div class="cv-value" id="cvValue">0</div>
+            <div class="cv-lock" id="cvLock">🔓 Unlocked</div>
+          </div>
+        </div>
+        <div class="cv-log" id="cvLog">
+          <div class="cv-log-header">Thread Access Log</div>
+          <div class="cv-log-body" id="cvLogBody">
+            <div>Start the simulation to see thread access patterns...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PERFORMANCE COMPARISON ========== -->
+  <section id="comparison" class="section comparison-section">
+    <div class="section-header">
+      <div class="section-tag">Benchmarks</div>
+      <h2 class="section-title">Performance Comparison</h2>
+      <p class="section-desc">Thread pool vs. creating new threads per request</p>
+    </div>
+    <div class="comparison-grid">
+      <div class="comparison-panel without">
+        <div class="panel-header">
+          <div class="panel-badge danger">WITHOUT Thread Pool</div>
+          <h3>Thread Per Request</h3>
+          <p>New thread created for every incoming request</p>
+        </div>
+        <div class="panel-metrics">
+          <div class="perf-metric">
+            <span>Response Time</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar bad" style="width:85%"></div>
+            </div>
+            <span class="perf-val bad">850ms avg</span>
+          </div>
+          <div class="perf-metric">
+            <span>Memory Usage</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar bad" style="width:90%"></div>
+            </div>
+            <span class="perf-val bad">2.1 GB</span>
+          </div>
+          <div class="perf-metric">
+            <span>CPU Efficiency</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar bad" style="width:40%"></div>
+            </div>
+            <span class="perf-val bad">40%</span>
+          </div>
+          <div class="perf-metric">
+            <span>Thread Creation Overhead</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar bad" style="width:95%"></div>
+            </div>
+            <span class="perf-val bad">Very High</span>
+          </div>
+          <div class="perf-metric">
+            <span>Throughput (req/s)</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar bad" style="width:30%"></div>
+            </div>
+            <span class="perf-val bad">~120</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="vs-divider">
+        <div class="vs-circle">VS</div>
+      </div>
+
+      <div class="comparison-panel with">
+        <div class="panel-header">
+          <div class="panel-badge success">WITH Thread Pool</div>
+          <h3>Thread Pool Manager</h3>
+          <p>Fixed pool of reusable worker threads</p>
+        </div>
+        <div class="panel-metrics">
+          <div class="perf-metric">
+            <span>Response Time</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar good" style="width:20%"></div>
+            </div>
+            <span class="perf-val good">45ms avg</span>
+          </div>
+          <div class="perf-metric">
+            <span>Memory Usage</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar good" style="width:25%"></div>
+            </div>
+            <span class="perf-val good">256 MB</span>
+          </div>
+          <div class="perf-metric">
+            <span>CPU Efficiency</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar good" style="width:89%"></div>
+            </div>
+            <span class="perf-val good">89%</span>
+          </div>
+          <div class="perf-metric">
+            <span>Thread Creation Overhead</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar good" style="width:5%"></div>
+            </div>
+            <span class="perf-val good">Minimal</span>
+          </div>
+          <div class="perf-metric">
+            <span>Throughput (req/s)</span>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar good" style="width:92%"></div>
+            </div>
+            <span class="perf-val good">~4800</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-chart-area">
+      <canvas id="comparisonChart" height="80"></canvas>
+    </div>
+  </section>
+
+  <!-- ========== CODE SECTION ========== -->
+  <section id="code" class="section code-section">
+    <div class="section-header">
+      <div class="section-tag">Implementation</div>
+      <h2 class="section-title">Code Demonstrations</h2>
+      <p class="section-desc">Real-world thread pool implementations across multiple languages</p>
+    </div>
+    <div class="code-tabs">
+      <button class="code-tab active" onclick="switchCodeTab('cpp', this)">C++</button>
+      <button class="code-tab" onclick="switchCodeTab('java', this)">Java</button>
+      <button class="code-tab" onclick="switchCodeTab('python', this)">Python</button>
+    </div>
+
+    <div class="code-panels">
+      <div class="code-panel active" id="code-cpp">
+        <div class="code-topic-tabs">
+          <button class="topic-tab active" onclick="switchTopic('cpp','basic',this)">Thread Pool</button>
+          <button class="topic-tab" onclick="switchTopic('cpp','queue',this)">Task Queue</button>
+          <button class="topic-tab" onclick="switchTopic('cpp','sync',this)">Synchronization</button>
+        </div>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-cpp" id="cpp-basic">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;queue&gt;
+#include &lt;mutex&gt;
+#include &lt;condition_variable&gt;
+#include &lt;functional&gt;
+#include &lt;vector&gt;
+
+class ThreadPool {
+public:
+    ThreadPool(size_t numThreads) : stop(false) {
+        for (size_t i = 0; i &lt; numThreads; ++i) {
+            workers.emplace_back([this] {
+                workerFunction();
+            });
+        }
+    }
+
+    // Add task to the pool
+    template&lt;class F&gt;
+    void enqueue(F&& task) {
+        {
+            std::unique_lock&lt;std::mutex&gt; lock(queueMutex);
+            if (stop) throw std::runtime_error("Pool stopped");
+            taskQueue.emplace(std::forward&lt;F&gt;(task));
+        }
+        condition.notify_one(); // Wake one waiting thread
+    }
+
+    ~ThreadPool() {
+        {
+            std::unique_lock&lt;std::mutex&gt; lock(queueMutex);
+            stop = true;
+        }
+        condition.notify_all(); // Wake all threads to exit
+        for (std::thread& worker : workers)
+            worker.join();
+    }
+
+private:
+    void workerFunction() {
+        while (true) {
+            std::function&lt;void()&gt; task;
+            {
+                std::unique_lock&lt;std::mutex&gt; lock(queueMutex);
+                // Wait until task available or stop signal
+                condition.wait(lock, [this] {
+                    return stop || !taskQueue.empty();
+                });
+                if (stop && taskQueue.empty()) return;
+                task = std::move(taskQueue.front());
+                taskQueue.pop();
+            }
+            task(); // Execute outside lock
+        }
+    }
+
+    std::vector&lt;std::thread&gt; workers;
+    std::queue&lt;std::function&lt;void()&gt;&gt; taskQueue;
+    std::mutex queueMutex;
+    std::condition_variable condition;
+    bool stop;
+};
+
+int main() {
+    ThreadPool pool(4); // 4 worker threads
+
+    for (int i = 0; i &lt; 20; ++i) {
+        pool.enqueue([i] {
+            std::cout &lt;&lt; "Task " &lt;&lt; i
+                      &lt;&lt; " on thread "
+                      &lt;&lt; std::this_thread::get_id()
+                      &lt;&lt; "\n";
+        });
+    }
+    return 0; // Destructor joins all threads
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="code-panel" id="code-java">
+        <div class="code-topic-tabs">
+          <button class="topic-tab active" onclick="switchTopic('java','basic',this)">Thread Pool</button>
+          <button class="topic-tab" onclick="switchTopic('java','queue',this)">Task Queue</button>
+          <button class="topic-tab" onclick="switchTopic('java','sync',this)">Synchronization</button>
+        </div>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-java" id="java-basic">import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class ThreadPoolDemo {
+
+    // Custom ThreadPool implementation
+    static class CustomThreadPool {
+        private final BlockingQueue&lt;Runnable&gt; taskQueue;
+        private final Thread[] workers;
+        private volatile boolean running = true;
+        private final AtomicInteger completedTasks = new AtomicInteger(0);
+
+        public CustomThreadPool(int numThreads, int queueSize) {
+            taskQueue = new ArrayBlockingQueue&lt;&gt;(queueSize);
+            workers = new Thread[numThreads];
+
+            for (int i = 0; i &lt; numThreads; i++) {
+                final int threadId = i;
+                workers[i] = new Thread(() -&gt; {
+                    System.out.println("Worker-" + threadId + " started");
+                    while (running || !taskQueue.isEmpty()) {
+                        try {
+                            Runnable task = taskQueue.poll(
+                                100, TimeUnit.MILLISECONDS
+                            );
+                            if (task != null) {
+                                task.run();
+                                completedTasks.incrementAndGet();
+                            }
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                    System.out.println("Worker-" + threadId + " terminated");
+                }, "Worker-" + i);
+                workers[i].start();
+            }
+        }
+
+        public boolean submit(Runnable task) {
+            return taskQueue.offer(task);
+        }
+
+        public void shutdown() {
+            running = false;
+            for (Thread w : workers) {
+                try { w.join(); }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        // Using Java's built-in executor
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        for (int i = 0; i &lt; 20; i++) {
+            final int taskId = i;
+            executor.submit(() -&gt; {
+                System.out.println("Task " + taskId +
+                    " by " + Thread.currentThread().getName());
+                Thread.sleep(100); // Simulate work
+                return taskId * 2;
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(30, TimeUnit.SECONDS);
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="code-panel" id="code-python">
+        <div class="code-topic-tabs">
+          <button class="topic-tab active" onclick="switchTopic('python','basic',this)">Thread Pool</button>
+          <button class="topic-tab" onclick="switchTopic('python','queue',this)">Task Queue</button>
+          <button class="topic-tab" onclick="switchTopic('python','sync',this)">Synchronization</button>
+        </div>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python" id="python-basic">import threading
+import queue
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+class ThreadPool:
+    """Custom thread pool implementation"""
+
+    def __init__(self, num_threads: int, queue_size: int = 100):
+        self.task_queue = queue.Queue(maxsize=queue_size)
+        self.workers = []
+        self.running = True
+        self.completed = 0
+        self._lock = threading.Lock()
+
+        # Create and start worker threads
+        for i in range(num_threads):
+            worker = threading.Thread(
+                target=self._worker_function,
+                name=f"Worker-{i}",
+                daemon=True
+            )
+            worker.start()
+            self.workers.append(worker)
+            print(f"Worker-{i} started")
+
+    def _worker_function(self):
+        """Main loop executed by each worker thread"""
+        while self.running:
+            try:
+                # Block until a task is available (timeout allows checking running)
+                task, args, kwargs = self.task_queue.get(timeout=0.5)
+                try:
+                    result = task(*args, **kwargs)
+                    with self._lock:
+                        self.completed += 1
+                    print(f"{threading.current_thread().name} "
+                          f"completed task, result={result}")
+                except Exception as e:
+                    print(f"Task failed: {e}")
+                finally:
+                    self.task_queue.task_done()
+            except queue.Empty:
+                continue  # Check running flag and try again
+
+    def submit(self, task, *args, **kwargs):
+        """Add task to the queue"""
+        try:
+            self.task_queue.put_nowait((task, args, kwargs))
+            return True
+        except queue.Full:
+            print("Queue full! Task rejected.")
+            return False
+
+    def shutdown(self, wait=True):
+        """Stop the pool"""
+        if wait:
+            self.task_queue.join()
+        self.running = False
+        for worker in self.workers:
+            worker.join()
+
+
+def example_task(task_id: int, duration: float) -> str:
+    time.sleep(duration)
+    return f"Task-{task_id} done"
+
+
+if __name__ == "__main__":
+    # Custom pool
+    pool = ThreadPool(num_threads=4, queue_size=50)
+    for i in range(20):
+        pool.submit(example_task, i, 0.1)
+    pool.shutdown()
+
+    # Using Python's built-in ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(example_task, i, 0.1) for i in range(20)]
+        results = [f.result() for f in futures]
+        print(f"Completed {len(results)} tasks")</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ARCHITECTURE SECTION ========== -->
+  <section id="architecture" class="section arch-section">
+    <div class="section-header">
+      <div class="section-tag">System Design</div>
+      <h2 class="section-title">Interactive System Architecture</h2>
+      <p class="section-desc">Animated flow showing how requests traverse the thread pool system</p>
+    </div>
+    <div class="arch-container">
+      <canvas id="archCanvas" width="900" height="400"></canvas>
+      <div class="arch-legend">
+        <div class="legend-item">
+          <div class="leg-dot" style="background:#06b6d4"></div>Client Request
+        </div>
+        <div class="legend-item">
+          <div class="leg-dot" style="background:#8b5cf6"></div>Queue Operation
+        </div>
+        <div class="legend-item">
+          <div class="leg-dot" style="background:#10b981"></div>Thread Execution
+        </div>
+        <div class="legend-item">
+          <div class="leg-dot" style="background:#f59e0b"></div>Completion
+        </div>
+      </div>
+      <button class="btn-primary arch-animate-btn" onclick="animateArchitecture()">Animate Flow</button>
+    </div>
+  </section>
+
+  <!-- ========== MONITOR SECTION ========== -->
+  <section id="monitor" class="section monitor-section">
+    <div class="section-header">
+      <div class="section-tag">System Monitor</div>
+      <h2 class="section-title">Thread Monitoring Panel</h2>
+      <p class="section-desc">Real-time view of all thread states and assignments</p>
+    </div>
+    <div class="monitor-layout">
+      <div class="monitor-toolbar">
+        <div class="monitor-filters">
+          <button class="filter-btn active" onclick="filterThreads('all', this)">All</button>
+          <button class="filter-btn" onclick="filterThreads('busy', this)">Busy</button>
+          <button class="filter-btn" onclick="filterThreads('idle', this)">Idle</button>
+          <button class="filter-btn" onclick="filterThreads('completed', this)">Completed</button>
+        </div>
+        <div class="monitor-search">
+          <input type="text" id="threadSearch" placeholder="Search Thread ID..." class="search-input"
+            oninput="searchThreads(this.value)" />
+        </div>
+      </div>
+      <div class="monitor-table-wrap">
+        <table class="monitor-table" id="monitorTable">
+          <thead>
+            <tr>
+              <th>Thread ID</th>
+              <th>Status</th>
+              <th>Current Task</th>
+              <th>Exec Time</th>
+              <th>Tasks Done</th>
+              <th>CPU %</th>
+              <th>Mem (MB)</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody id="monitorBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+      <div class="monitor-footer">
+        <span id="monitorFooter">Showing 0 threads — Start simulation to populate</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== OS INSIGHTS SECTION ========== -->
+  <section id="insights" class="section insights-section">
+    <div class="section-header">
+      <div class="section-tag">Educational</div>
+      <h2 class="section-title">OS Engineering Insights</h2>
+      <p class="section-desc">Deep dive into thread pool theory and real-world applications</p>
+    </div>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-num">01</div>
+        <h3>Why Thread Pools Improve Performance</h3>
+        <p>Creating OS threads is expensive: stack allocation (~1-8MB), kernel data structures, TLB flush, scheduler
+          state. A thread pool amortizes this cost across many requests, reducing latency by 10-40× for workloads with
+          short tasks. Connection pooling in web servers follows the same principle.</p>
+        <div class="insight-tag">Performance Theory</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num">02</div>
+        <h3>How Apache Uses Thread Pools (MPM Worker)</h3>
+        <p>Apache's Multi-Processing Module (MPM) Worker model uses a hybrid approach: multiple processes, each with
+          thread pools. Each child process maintains N worker threads that handle HTTP connections. This balances
+          isolation (processes) with efficiency (threads), supporting thousands of concurrent connections.</p>
+        <div class="insight-tag">Real-World Applications</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num">03</div>
+        <h3>Thread Pool vs Process Pool</h3>
+        <div class="vs-mini-table">
+          <div class="vs-row header"><span>Feature</span><span>Thread Pool</span><span>Process Pool</span></div>
+          <div class="vs-row"><span>Memory</span><span class="good">Shared</span><span class="bad">Isolated</span></div>
+          <div class="vs-row"><span>Overhead</span><span class="good">Low</span><span class="bad">High</span></div>
+          <div class="vs-row"><span>Fault Isolation</span><span class="bad">Low</span><span class="good">High</span>
+          </div>
+          <div class="vs-row"><span>Use Case</span><span>I/O bound</span><span>CPU bound</span></div>
+        </div>
+        <div class="insight-tag">Architecture Decisions</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num">04</div>
+        <h3>When to Avoid Thread Pools</h3>
+        <p>Thread pools are suboptimal when: (1) Tasks are extremely long-running (hours) — consider dedicated threads.
+          (2) Tasks vary wildly in duration — work-stealing queues perform better. (3) Tasks are highly I/O bound —
+          consider async/await (Node.js model). (4) Security isolation is required — use process pools.</p>
+        <div class="insight-tag">Anti-patterns</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="logo-text">ThreadPool<span class="logo-accent">OS</span></span>
+        <p>An educational visualization platform for OS concepts</p>
+      </div>
+      <div class="footer-info">
+        <p>Built for B.Tech Operating Systems Project</p>
+        <p class="footer-tech">React • Chart.js • Web Animations API • Canvas 2D</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ThreadPool OS Simulator • All simulations are educational demonstrations</p>
+    </div>
+  </footer>
+
+  <script src="simulation.js"></script>
+  <script src="charts.js"></script>
+  <script src="ui.js"></script>
+</body>
+
+</html>
