@@ -72,7 +72,6 @@ This project is designed to help students, reviewers, and demo audiences underst
 ├── charts.js
 ├── ui.js
 ├── README.md
-└── IMPROVEMENTS_NOTES.txt
 ```
 
 ### File Guide
@@ -82,7 +81,6 @@ This project is designed to help students, reviewers, and demo audiences underst
 - [`simulation.js`](./simulation.js): simulator engine, metrics, presets, export, lifecycle, concurrency demo
 - [`charts.js`](./charts.js): real-time dashboard charts
 - [`ui.js`](./ui.js): animation helpers, keyboard shortcuts, toasts, and responsive canvas behavior
-- [`IMPROVEMENTS_NOTES.txt`](./IMPROVEMENTS_NOTES.txt): roadmap and future enhancement ideas
 
 ## Getting Started
 
